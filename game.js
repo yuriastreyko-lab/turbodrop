@@ -90,7 +90,7 @@ return `<svg viewBox="0 0 120 50"><defs><linearGradient id="${u}" x1="0" y1="0" 
 // Фото машин из photos.js (если есть): ищем по названию или по номеру
 const PH=(typeof PHOTOS!=='undefined'&&PHOTOS)||(typeof CAR_PHOTOS!=='undefined'&&CAR_PHOTOS)||(typeof IMAGES!=='undefined'&&IMAGES)||{};
 const ix=c=>c.i!==undefined?c.i:CARS.indexOf(c);
-const photo=c=>{const v=PH[c.n]??PH[ix(c)];return typeof v==='string'?v:v&&(v.url||v.src)||null};
+const photo=c=>{const v=PH[c.n]??PH[ix(c)];return typeof v==='string'?v:v&&(v.url||v.src)||'cars/'+(ix(c)+1)+'.png'};
 const art=c=>{const p=photo(c);return p?`<img class="ph" src="${p}" alt="${c.n}" loading="lazy" onerror="this.outerHTML=car(CARS[${ix(c)}])">`:car(c)};
 const mini=(c,x='')=>`<div class="cc" style="border-color:${RC[c.r]}66">${rb(c.r)}${art(c)}<h3>${c.n}</h3><p>${FL[c.cc]} ${c.hp} л.с. · ${fmt(c.p)}</p>${x}</div>`;
 function rate(){const cnt={};S.cars.forEach(o=>cnt[CARS[o.i].cc]=(cnt[CARS[o.i].cc]||0)+1);return S.cars.reduce((a,o)=>a+CARS[o.i].p*INC*(cnt[CARS[o.i].cc]>=3?1.1:1),0)}

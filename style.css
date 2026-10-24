@@ -64,3 +64,9 @@ input[type=range]{width:100%;accent-color:#ef4444;margin:10px 0}
 .two .sm{white-space:nowrap;padding:9px 4px;font-size:12px}.two .sm:first-child{flex:1.3}.two .sm:last-child{flex:1}
 input,textarea{-webkit-user-select:text;user-select:text}
 .promo input{width:100%;padding:15px 16px;border-radius:16px;background:var(--card2);border:1px solid var(--line);color:var(--ink);font:700 16px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;outline:none}.promo input:focus{border-color:var(--a)}.promo input::placeholder{text-transform:none;letter-spacing:0;color:var(--mute);font-weight:600}
+/* новые игры, десктоп */
+.pit{position:relative;height:46px;background:var(--card2);border:1px solid var(--line);border-radius:14px;margin:14px 0 4px}.pit #pz{position:absolute;top:0;bottom:0;background:#34d39944;border:2px solid #34d399;border-radius:10px;left:40%;width:20%}.pit #pm{position:absolute;top:-5px;bottom:-5px;width:6px;margin-left:-3px;background:#fff;border-radius:3px;box-shadow:0 0 12px #fff;left:0}
+#cv{display:block;margin:8px auto;width:min(92vw,330px);height:auto;border-radius:18px;border:1px solid var(--line);touch-action:none}.rb2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rb2 .blue{height:84px;font-size:28px}
+.two .blue{flex:1}
+@media(min-width:900px){main{max-width:980px}.grid{grid-template-columns:repeat(3,1fr)}.gl{grid-template-columns:repeat(3,1fr)}.cen .cc{width:calc(33.3% - 8px)}#dial{width:320px}h1{font-size:36px}.cs{margin:0;padding-left:2px}}
+@media(min-width:900px){header{max-width:980px;margin:0 auto}}

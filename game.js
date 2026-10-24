@@ -59,13 +59,13 @@ Sahara Titan|A|600|18|DE|#588157|suv
 Everest 6x6|A|650|21|GB|#e5e5e5|suv`.split('\n').map(s=>{const[n,r,hp,p,cc,col,tg]=s.split('|');return{n,r,hp:+hp,p:p*1e6,cc,col,tg:tg.split(',')}});
 const CASES=[ // t = тема (тег машин), w = шансы по редкости (пересчитываются под то, что есть в кейсе)
 {n:'Старт',e:'📦',c:5e5,t:'daily',w:{D:80,C:17,B:3},col:'#8a93a8',d:'Обычные городские машины'},
-{n:'СССР',e:'⭐',c:1.4e6,t:'ussr',w:{D:50,C:35,B:12,A:3},col:'#ef4444',d:'Классика советского автопрома'},
-{n:'Внедорожники',e:'🏔️',c:3.5e6,t:'suv',w:{D:20,C:45,B:30,A:5},col:'#84cc16',d:'Полный привод и бездорожье'},
-{n:'Дрифт',e:'🌀',c:6.5e6,t:'drift',w:{C:40,B:40,A:18,S:2},col:'#a855f7',d:'Заднеприводные дрифт-кары'},
-{n:'Маслкары',e:'💪',c:6.7e6,t:'muscle',w:{C:35,B:45,A:19,S:1},col:'#f97316',d:'Американская мощь и рёв V8'},
-{n:'Спорткары',e:'🏁',c:11.5e6,t:'sport',w:{C:20,B:45,A:30,S:5},col:'#3b82f6',d:'Европейские скоростные купе'},
-{n:'Редкие',e:'💎',c:20e6,t:'rare',w:{B:35,A:50,S:15},col:'#22d3ee',d:'Эксклюзив и коллекционные модели'},
-{n:'Легенды',e:'👑',c:40e6,t:'legend',w:{A:50,S:50},col:'#fbbf24',d:'Только эпические и легендарные'}];
+{n:'СССР',e:'⭐',c:8e5,t:'ussr',w:{D:50,C:35,B:12,A:3},col:'#ef4444',d:'Классика советского автопрома'},
+{n:'Внедорожники',e:'🏔️',c:2e6,t:'suv',w:{D:20,C:45,B:30,A:5},col:'#84cc16',d:'Полный привод и бездорожье'},
+{n:'Дрифт',e:'🌀',c:3.5e6,t:'drift',w:{C:40,B:40,A:18,S:2},col:'#a855f7',d:'Заднеприводные дрифт-кары'},
+{n:'Маслкары',e:'💪',c:3.8e6,t:'muscle',w:{C:35,B:45,A:19,S:1},col:'#f97316',d:'Американская мощь и рёв V8'},
+{n:'Спорткары',e:'🏁',c:6e6,t:'sport',w:{C:20,B:45,A:30,S:5},col:'#3b82f6',d:'Европейские скоростные купе'},
+{n:'Редкие',e:'💎',c:10e6,t:'rare',w:{B:35,A:50,S:15},col:'#22d3ee',d:'Эксклюзив и коллекционные модели'},
+{n:'Легенды',e:'👑',c:15e6,t:'legend',w:{A:50,S:50},col:'#fbbf24',d:'Только эпические и легендарные'}];
 const poolFor=k=>CARS.map((_,i)=>i).filter(i=>CARS[i].tg.includes(k.t));
 const caseW=k=>{const have=new Set(poolFor(k).map(i=>CARS[i].r)),w={};for(const r in k.w)if(have.has(r))w[r]=k.w[r];return w};
 const roll=k=>{const r=pick(caseW(k)),p=poolFor(k).filter(i=>CARS[i].r===r);return p[Math.floor(R()*p.length)]};
@@ -109,8 +109,14 @@ const gcard=o=>{const lv=o.lv||0;return mini(car2(o),`<p>Уровень ${lv}/5<
 let gm=null,wc=33,ws=1,wbusy=false;const WS=[1e5,5e5,1e6,5e6,2e7],SOON=[['⛽','Пит-стоп','Останови ползунок в зелёной зоне'],['🔨','Аукцион','Угадай: дороже или дешевле'],['🚧','Ралли','Объезжай препятствия на скорости']];
 // ===== Промокоды: хранятся хэши SHA-256 от 'tdrop:' + КОД (сами коды в репозитории не видны) =====
 const PROMO={
-'ef0742f22e6e6bbede53a90b8861f446ad88fca697576c35c8610605b24adab1':10000000,
-'0cac774e9f31528c59ded96c4d9c19fba06aaf7f3fc8216ca24a807a5f3d4dd7':5000000};
+'84f1bd220dd5641cde6f90a549a3c16f64c783e9bd32a99d8982c4cdd582d0af':5000000,
+'ea4bb49315d4644d01dfb49d9f08da1b7da91798dbae2a9a90f92363b6c325ac':10000000,
+'916602bb64f369aa0df422ad6f561ab2e2ed42903839f1f003bc530f78e17714':15000000,
+'38123173880137a4a2a9576b75abc8aa185a7d683f397cbdb5afe29d1554c0b0':25000000,
+'ac41cbda41d30eb6a65f6b94fe1af953aa3d87daa83a8600c21480f62d4a4eca':50000000,
+'c47219b3fb6819298ab29867239ea486c7a7b2d1be813a4b0c840f450d786f65':75000000,
+'0f9919b1a249c36b2c48ef85a5c97b8627a93da5c73fcd0051ff665f12041c16':100000000
+};
 async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function applyPromo(){const el=$('#pc'),pm=$('#pm');if(!el)return;const say=(t,ok)=>{pm.textContent=t;pm.style.color=ok?'#34d399':'#f87171'};const c=el.value.trim().toUpperCase().replace(/\s+/g,'');if(!c)return say('Введите промокод');
 if(!(window.crypto&&crypto.subtle))return say('Промокоды не поддерживаются в этом окне');const h=await sha('tdrop:'+c),r=PROMO[h];S.pu=S.pu||[];

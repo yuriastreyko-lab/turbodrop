@@ -107,6 +107,14 @@ const eff=o=>CARS[o.i].hp*(1+.1*(o.lv||0)),upCost=o=>Math.round(CARS[o.i].p*.04*
 const gcard=o=>{const lv=o.lv||0;return mini(car2(o),`<p>Уровень ${lv}/5</p><div class="two"><button class="sm" data-a="upg" data-i="${o.id}" ${lv>=5?'disabled':''}>${lv>=5?'MAX':'⬆ '+fmt(upCost(o))}</button><button class="sm" data-a="sell" data-i="${o.id}">Продать</button></div>`)};
 // ===== Игры =====
 let gm=null,wc=33,ws=1,wbusy=false;const WS=[1e5,5e5,1e6,5e6,2e7],SOON=[['⛽','Пит-стоп','Останови ползунок в зелёной зоне'],['🔨','Аукцион','Угадай: дороже или дешевле'],['🚧','Ралли','Объезжай препятствия на скорости']];
+// ===== Промокоды: хранятся хэши SHA-256 от 'tdrop:' + КОД (сами коды в репозитории не видны) =====
+const PROMO={
+'ef0742f22e6e6bbede53a90b8861f446ad88fca697576c35c8610605b24adab1':10000000,
+'0cac774e9f31528c59ded96c4d9c19fba06aaf7f3fc8216ca24a807a5f3d4dd7':5000000};
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function applyPromo(){const el=$('#pc'),pm=$('#pm');if(!el)return;const say=(t,ok)=>{pm.textContent=t;pm.style.color=ok?'#34d399':'#f87171'};const c=el.value.trim().toUpperCase().replace(/\s+/g,'');if(!c)return say('Введите промокод');
+if(!(window.crypto&&crypto.subtle))return say('Промокоды не поддерживаются в этом окне');const h=await sha('tdrop:'+c),r=PROMO[h];S.pu=S.pu||[];
+if(!r)return say('Такого промокода нет');if(S.pu.includes(h))return say('Этот промокод уже активирован');S.pu.push(h);S.m+=r;save();upd();el.value='';say('Активирован: +'+fmt(r),true);toast('+'+fmt(r)+' по промокоду');buzz()}
 const edgeOf=o=>o?Math.max(.04,.10-eff(o)/20000):.10;
 const arcD=p=>{const th=Math.min(p,.995)*Math.PI,pt=a=>[100+80*Math.cos(a),100+80*Math.sin(a)],[x1,y1]=pt(Math.PI/2-th),[x2,y2]=pt(Math.PI/2+th);return `M${x1.toFixed(2)} ${y1.toFixed(2)}A80 80 0 ${th>Math.PI/2?1:0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`};
 const pickerH=()=>{if(!S.cars.length)return '<div class="card"><p class="mute" style="margin:0">У вас нет машин. Откройте кейс, чтобы начать играть.</p></div>';const o=selCar(),lv=o.lv||0;
@@ -119,7 +127,7 @@ const p=wc/100,m=(1-edgeOf(o))/p,win=R()<p,th=p*180;S.m-=st;upd();wbusy=true;$('
 const nd=$('#needle');nd.style.transition='none';nd.style.transform='rotate(0deg)';void nd.getBoundingClientRect();nd.style.transition='transform 4.6s cubic-bezier(.1,.6,.1,1)';nd.style.transform=`rotate(${1800+f}deg)`;const tk=setInterval(buzz,160);
 setTimeout(()=>{clearInterval(tk);wbusy=false;if(win)S.m+=st*m;gainXp(win?20:5);save();upd();const r=$('#wres'),b=$('#spin');if(r){r.textContent=win?'Победа! +'+fmt(st*m-st):'Не повезло: −'+fmt(st);r.style.color=win?'#34d399':'#f87171';r.style.fontSize='18px'}if(b)b.disabled=false;toast(win?'+'+fmt(st*m):'Не повезло')},4800)}
 V.games=()=>{if(gm==='race')return pickerH()+V.raceV();if(gm==='wheel')return pickerH()+wheelH();
-return pickerH()+`<div class="sec"><span>ИГРЫ</span></div><div class="gl"><button class="gc" data-g="race"><span>🏁</span><b>Гонка</b><small>Старт против робота · взнос от ${fmt(DIFF[0][1])}</small></button><button class="gc" data-g="wheel"><span>🎯</span><b>Колесо</b><small>Сам выбираешь шанс и множитель</small></button>${SOON.map(s=>`<div class="gc soon"><span>${s[0]}</span><b>${s[1]}</b><small>${s[2]}</small><i>Скоро</i></div>`).join('')}</div>`};
+return pickerH()+`<div class="sec"><span>ИГРЫ</span></div><div class="gl"><button class="gc" data-g="race"><span>🏁</span><b>Гонка</b><small>Старт против робота · взнос от ${fmt(DIFF[0][1])}</small></button><button class="gc" data-g="wheel"><span>🎯</span><b>Колесо</b><small>Сам выбираешь шанс и множитель</small></button>${SOON.map(s=>`<div class="gc soon"><span>${s[0]}</span><b>${s[1]}</b><small>${s[2]}</small><i>Скоро</i></div>`).join('')}</div><div class="sec"><span>ПРОМОКОД</span></div><div class="card promo"><input id="pc" placeholder="Введите промокод" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="blue" data-a="promo">Активировать</button><p class="mute" id="pm" style="min-height:18px"></p></div>`};
 const TT={garage:'Гараж',cases:'Кейсы',games:'Игры',menu:'Меню'};
 function upd(){$('#mo').textContent=fmt(S.m);$('#lv').textContent=S.lv;const a=$('#acc');if(a){const cap=rate()*CAP_H;a.textContent=fmt(S.acc);$('#accb').style.width=(cap?S.acc/cap*100:0)+'%'}const f=$('#fu');if(f)f.textContent=S.fuel+'/'+FUEL_MAX}
 function draw(){$('#ttl').textContent=TT[tab];document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));$('#main').innerHTML=V[tab]();upd();if(tab==='games'&&gm==='wheel')wUpd()}
@@ -156,7 +164,7 @@ document.body.onclick=e=>{const b=e.target.closest('[data-a],[data-t],[data-g]')
 const a=b.dataset.a,i=+b.dataset.i;buzz();
 if(a==='claim'){if(S.acc<1)return toast('Пока нечего забирать');S.m+=S.acc;toast('+'+fmt(S.acc));S.acc=0}
 else if(a==='sell'){const o=S.cars.find(x=>x.id===i);if(o&&confirm('Продать '+CARS[o.i].n+'?')){S.m+=CARS[o.i].p*SELL;S.cars=S.cars.filter(x=>x!==o);task('sell')}}
-else if(a==='pick')S.sel=i;else if(a==='upg'){const o=S.cars.find(x=>x.id===i);if(!o)return;if((o.lv||0)>=5)return toast('Максимальный уровень');const c=upCost(o);if(S.m<c)return toast('Не хватает '+fmt(c-S.m));S.m-=c;o.lv=(o.lv||0)+1;toast(CARS[o.i].n+': уровень '+o.lv)}else if(a==='wst')ws=i;else if(a==='wspin')return spin();else if(a==='cs')cs=i;else if(a==='cn')cn=i;else if(a==='df')df=i;else if(a==='open')return openCase();else if(a==='go')return race();
+else if(a==='pick')S.sel=i;else if(a==='upg'){const o=S.cars.find(x=>x.id===i);if(!o)return;if((o.lv||0)>=5)return toast('Максимальный уровень');const c=upCost(o);if(S.m<c)return toast('Не хватает '+fmt(c-S.m));S.m-=c;o.lv=(o.lv||0)+1;toast(CARS[o.i].n+': уровень '+o.lv)}else if(a==='wst')ws=i;else if(a==='wspin')return spin();else if(a==='promo')return applyPromo();else if(a==='cs')cs=i;else if(a==='cn')cn=i;else if(a==='df')df=i;else if(a==='open')return openCase();else if(a==='go')return race();
 else if(a==='closeov')$('#ov').className='';else if(a==='closerace')$('#race').className='';
 save();draw()};
 document.body.oninput=e=>{if(e.target.id==='wc'){wc=+e.target.value;wUpd()}};

@@ -144,8 +144,44 @@ function car(c) {
 // Фото машин из photos.js (если есть): ищем по названию или по номеру
 const ix = c => c.i !== undefined ? c.i : CARS.indexOf(c);
 // Новые изображения из присланного каталога. Для остальных моделей используется прежний арт.
-const CATALOG_CAR_PHOTOS = { "42": "cars/catalog/catalog_01.png", "34": "cars/catalog/catalog_02.png", "43": "cars/catalog/catalog_03.png", "40": "cars/catalog/catalog_04.png", "65": "cars/catalog/catalog_05.png", "76": "cars/catalog/catalog_06.png", "71": "cars/catalog/catalog_07.png", "95": "cars/catalog/catalog_08.png", "52": "cars/catalog/catalog_09.png", "51": "cars/catalog/catalog_10.png", "1": "cars/catalog/catalog_11.png", "4": "cars/catalog/catalog_12.png", "10": "cars/catalog/catalog_13.png", "8": "cars/catalog/catalog_14.png", "27": "cars/catalog/catalog_15.png", "25": "cars/catalog/catalog_16.png", "26": "cars/catalog/catalog_17.png", "3": "cars/catalog/catalog_18.png", "5": "cars/catalog/catalog_19.png", "47": "cars/catalog/catalog_20.png", "31": "cars/catalog/catalog_21.png", "46": "cars/catalog/catalog_22.png", "48": "cars/catalog/catalog_23.png", "49": "cars/catalog/catalog_24.png", "53": "cars/catalog/catalog_25.png", "64": "cars/catalog/catalog_26.png", "92": "cars/catalog/catalog_27.png", "96": "cars/catalog/catalog_28.png", "50": "cars/catalog/catalog_29.png", "32": "cars/catalog/catalog_30.png", "70": "cars/catalog/catalog_31.png", "30": "cars/catalog/catalog_32.png", "61": "cars/catalog/catalog_33.png", "58": "cars/catalog/catalog_34.png", "56": "cars/catalog/catalog_35.png", "78": "cars/catalog/catalog_36.png" };
-
+const CATALOG_CAR_PHOTOS = {
+  "42": "catalog_01.png",
+  "34": "catalog_02.png",
+  "43": "catalog_03.png",
+  "40": "catalog_04.png",
+  "65": "catalog_05.png",
+  "76": "catalog_06.png",
+  "71": "catalog_07.png",
+  "95": "catalog_08.png",
+  "52": "catalog_09.png",
+  "51": "catalog_10.png",
+  "1": "catalog_11.png",
+  "4": "catalog_12.png",
+  "10": "catalog_13.png",
+  "8": "catalog_14.png",
+  "27": "catalog_15.png",
+  "25": "catalog_16.png",
+  "26": "catalog_17.png",
+  "3": "catalog_18.png",
+  "5": "catalog_19.png",
+  "47": "catalog_20.png",
+  "31": "catalog_21.png",
+  "46": "catalog_22.png",
+  "48": "catalog_23.png",
+  "49": "catalog_24.png",
+  "53": "catalog_25.png",
+  "64": "catalog_26.png",
+  "92": "catalog_27.png",
+  "96": "catalog_28.png",
+  "50": "catalog_29.png",
+  "32": "catalog_30.png",
+  "70": "catalog_31.png",
+  "30": "catalog_32.png",
+  "61": "catalog_33.png",
+  "58": "catalog_34.png",
+  "56": "catalog_35.png",
+  "78": "catalog_36.png"
+};
 const photo = c => CATALOG_CAR_PHOTOS[String(ix(c) + 1)] || ((typeof CAR_IMG !== 'undefined' && CAR_IMG[ix(c)]) ? CAR_IMG[ix(c)] : null);
 const art = c => { const p = photo(c); return p ? `<img class="ph" src="${p}" alt="${c.n}" loading="lazy" onerror="this.outerHTML=car(CARS[${ix(c)}])">` : car(c) };
 const mini = (c, x = '') => `<div class="cc" style="border-color:${RC[c.r]}66">${rb(c.r)}${art(c)}<h3>${c.n}</h3><p>${FL[c.cc]} ${c.hp} л.с. · ${fmt(c.p)}</p>${x}</div>`;

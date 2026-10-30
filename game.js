@@ -236,7 +236,14 @@ function spin() {
     const nd = $('#needle'); nd.style.transition = 'none'; nd.style.transform = 'rotate(0deg)'; void nd.getBoundingClientRect(); nd.style.transition = 'transform 4.6s cubic-bezier(.1,.6,.1,1)'; nd.style.transform = `rotate(${1800 + f}deg)`; const tk = setInterval(buzz, 160);
     setTimeout(() => { clearInterval(tk); wbusy = false; if (win) S.m += st * m; gainXp(win ? 20 : 5); save(); upd(); const r = $('#wres'), b = $('#spin'); if (r) { r.textContent = win ? 'Победа! +' + fmt(st * m - st) : 'Не повезло: −' + fmt(st); r.style.color = win ? '#34d399' : '#f87171'; r.style.fontSize = '18px' } if (b) b.disabled = false; toast(win ? '+' + fmt(st * m) : 'Не повезло') }, 4800)
 }
-const extraGameView = (kind) => { const data = { drag: ['🚦 Драг-рейсинг', 'Нажимай «Переключить» в зелёной зоне оборотов. Ошибки перегревают двигатель.'], delivery: ['📦 Доставка', 'Собери маршрут из 5 контрольных точек, не врезайся и береги груз.'], parking: ['🅿️ Точная парковка', 'Остановись как можно ближе к центру зоны. Чем точнее, тем выше награда.'] }[kind]; return `<button class="back" data-g="hub">‹ Игры</button><div class="card" style="text-align:center"><h2>${data[0]}</h2><p class="mute">${data[1]}</p>${stakeH()}<button class="blue" data-a="extra-start" data-kind="${kind}">Начать · ${fmt(stk)}</button><p id="extra-result" class="mute"></p></div>` };
+const extraGameView = kind => {
+    const data = {
+        drag: ['🚦 Драг-рейсинг', 'Разгони двигатель и переключай передачи в зелёной зоне. Пять передач до финиша.'],
+        delivery: ['📦 Доставка', 'Двигайся по дороге, объезжай препятствия и довези груз до финиша. Столкновения повреждают груз.'],
+        parking: ['🅿️ Точная парковка', 'Управляй машиной и припаркуйся в зелёной зоне. Важно не задеть конусы и не выйти за время.']
+    }[kind];
+    return `<button class="back" data-g="hub">‹ Игры</button><div class="card" style="text-align:center"><h2>${data[0]}</h2><p class="mute">${data[1]}</p>${stakeH()}<button class="blue" data-a="extra-start" data-kind="${kind}">Начать · ${fmt(stk)}</button><p class="mute">Награда начисляется только после завершения игры и зависит от результата.</p></div>`;
+};
 V.games = () => {
     if (gm === 'pit') return pickerH() + pitView(); if (gm === 'auction') return pickerH() + aucView(); if (gm === 'rally') return pickerH() + rallyView(); if (['drag', 'delivery', 'parking'].includes(gm)) return pickerH() + extraGameView(gm); if (gm === 'race') return pickerH() + V.raceV(); if (gm === 'wheel') return pickerH() + wheelH();
     return pickerH() + `<div class="sec"><span>ИГРЫ</span></div><div class="gl"><button class="gc" data-g="race"><span>🏁</span><b>Гонка</b><small>Старт против робота · приз ×2–2,5</small></button><button class="gc" data-g="wheel"><span>🎯</span><b>Колесо</b><small>Сам выбираешь шанс и множитель</small></button><button class="gc" data-g="pit"><span>⛽</span><b>Пит-стоп</b><small>Останови ползунок в зелёной зоне</small></button><button class="gc" data-g="auction"><span>🔨</span><b>Аукцион</b><small>Угадай: дороже или дешевле</small></button><button class="gc" data-g="rally"><span>🚧</span><b>Ралли</b><small>Объезжай препятствия</small></button><button class="gc" data-g="drag"><span>🚦</span><b>Драг-рейсинг</b><small>Реакция, переключение передач и температура</small></button><button class="gc" data-g="delivery"><span>📦</span><b>Доставка</b><small>Доставь груз без повреждений</small></button><button class="gc" data-g="parking"><span>🅿️</span><b>Парковка</b><small>Точность и время</small></button></div><div class="sec"><span>ПРОМОКОД</span></div><div class="card promo"><input id="pc" placeholder="Введите промокод" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="blue" data-a="promo">Активировать</button><p class="mute" id="pm" style="min-height:18px"></p></div>`
@@ -305,6 +312,88 @@ function rally() {
         if (ob.some(o => Math.abs(o.x - px) < 45 && o.y + 20 > 332 && o.y - 20 < 402) || t >= RT) return finish(); raf = requestAnimationFrame(loop)
     }; raf = requestAnimationFrame(loop)
 }
+
+// ===== Полноценные мини-игры: результат зависит от действий игрока =====
+let extraSession = null;
+function startExtraGame(kind) {
+    if (!['drag', 'delivery', 'parking'].includes(kind)) return;
+    if (!selCar()) return toast('Сначала получите машину в кейсе');
+    if (!okStake()) return;
+    const fee = Math.floor(stk), selected = car2(selCar()), el = $('#race');
+    if (fee < 1000 || fee > S.m) return toast('Проверьте сумму взноса');
+    S.m -= fee; save(); upd();
+    el.className = 'on';
+    el.innerHTML = `<div class="rt"><button data-a="closerace" aria-label="Закрыть" style="display:none">‹</button><div id="x-title" class="t"></div><div id="x-sub">Управляй машиной и доберись до финиша</div></div><canvas id="x-cv" width="320" height="440" style="display:block;width:min(100%,360px);height:auto;margin:0 auto;border-radius:14px;touch-action:none"></canvas><div id="x-stats" class="card" style="text-align:center;margin:8px 0"></div><div class="bot rb2" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="blue" data-xkey="left">◀</button><button class="blue" data-xkey="down">▼</button><button class="blue" data-xkey="up">▲</button><button class="blue" data-xkey="right">▶</button><button class="blue" id="x-action">ДЕЙСТВИЕ</button></div><p class="mute" style="text-align:center">Клавиатура: стрелки / WASD. На телефоне используй кнопки.</p>`;
+    const cv = $('#x-cv'), ctx = cv.getContext('2d'), title = $('#x-title'), sub = $('#x-sub'), stats = $('#x-stats'), action = $('#x-action');
+    let ended = false, raf = 0, last = performance.now(), elapsed = 0, keys = Object.create(null), held = Object.create(null), score = 0, shift = () => {};
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const roundRect = (x,y,w,h,r,fill) => { ctx.beginPath(); ctx.roundRect(x,y,w,h,r); if (fill) ctx.fill(); else ctx.stroke(); };
+    const text = (t,x,y,size=15,color='#fff',align='left') => { ctx.fillStyle=color; ctx.font=`700 ${size}px system-ui,sans-serif`; ctx.textAlign=align; ctx.fillText(t,x,y); ctx.textAlign='left' };
+    const carShape = (x,y,angle=0,color=selected.col) => { ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle='#05070b';roundRect(-13,-21,26,42,6,true);ctx.fillStyle=color;roundRect(-10,-20,20,40,5,true);ctx.fillStyle='#172536';roundRect(-7,-11,14,10,3,true);ctx.fillStyle='#b9e8ff';roundRect(-7,5,14,7,2,true);ctx.fillStyle='#fff5ba';ctx.fillRect(-9,-18,4,3);ctx.fillRect(5,-18,4,3);ctx.restore() };
+    const finish = (win, label, rawScore) => {
+        if (ended) return; ended = true; cancelAnimationFrame(raf); document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku);
+        document.querySelectorAll('[data-xkey]').forEach(b => { b.onpointerdown = b.onpointerup = b.onpointerleave = null });
+        score = clamp(rawScore,0,1); const mult = win ? (0.5 + score * 1.9) : score * 0.35; const payout = Math.round(fee * mult);
+        S.m += payout; gainXp(win ? 18 + Math.round(score*22) : 4 + Math.round(score*8)); save(); upd();
+        title.className = win ? 't w' : 't l'; title.textContent = label;
+        sub.textContent = `${win ? 'Финиш' : 'Заезд окончен'} · результат ${Math.round(score*100)}%`;
+        stats.innerHTML = `<b>${win ? 'Награда' : 'Компенсация за результат'}: ${fmt(payout)}</b><br><span class="mute">Взнос: ${fmt(fee)} · итог с учётом взноса: ${payout-fee >= 0 ? '+' : '−'}${fmt(Math.abs(payout-fee))}</span>`;
+        action.textContent='ЗАКРЫТЬ'; action.onclick=()=>{$('#race').className='';extraSession=null}; action.style.display=''; document.querySelectorAll('[data-xkey]').forEach(b=>b.disabled=true);
+        extraSession=null; toast((payout>=fee?'Результат в плюс: ':'Выплата: ')+fmt(payout));
+    };
+    const kd = e => { const k=e.key.toLowerCase(); if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k)) e.preventDefault(); keys[k]=true; if(kind==='drag' && (k===' '||k==='enter')) shift(); };
+    const ku = e => { keys[e.key.toLowerCase()]=false };
+    document.addEventListener('keydown',kd); document.addEventListener('keyup',ku);
+    document.querySelectorAll('[data-xkey]').forEach(b=>{
+        const k=b.dataset.xkey, map={left:'arrowleft',right:'arrowright',up:'arrowup',down:'arrowdown'};
+        b.onpointerdown=e=>{e.preventDefault();keys[map[k]]=true;held[k]=true};
+        const release=e=>{e.preventDefault();keys[map[k]]=false;held[k]=false};
+        b.onpointerup=release;b.onpointerleave=release;
+    });
+    const actionFn = () => { if(kind==='drag') shift(); else if(kind==='parking') { keys.space=true; setTimeout(()=>keys.space=false,250); } };
+    action.onclick=actionFn;
+    if(kind==='drag') {
+        let gear=1,rpm=.2,good=0,miss=0,stopped=false;
+        title.textContent='🚦 Драг-рейсинг'; sub.textContent='Жми «ПЕРЕКЛЮЧИТЬ» в зелёной зоне'; action.textContent='ПЕРЕКЛЮЧИТЬ';
+        shift=()=>{if(ended||stopped)return;if(rpm>=.58&&rpm<=.82){good++;gear++;rpm=.28;buzz();if(gear>5){finish(true,'ПОБЕДА!',good/5);stopped=true}}else{miss++;rpm=.96;sub.textContent='Промах! Потеря мощности';if(miss>=3||rpm>=.95){finish(false,'ДВИГАТЕЛЬ ПЕРЕГРЕТ',good/5);stopped=true}}};
+        const drawDrag=dt=>{rpm+=dt*(.24+selected.hp/2200);if(rpm>=1){finish(false,'ПЕРЕКРУТ ДВИГАТЕЛЯ',good/5);return}ctx.fillStyle='#101622';ctx.fillRect(0,0,320,440);text('ЗАЕЗД НА 5 ПЕРЕДАЧ',160,36,17,'#fff','center');text('ПЕРЕДАЧА '+Math.min(gear,5),160,78,22,'#facc15','center');ctx.fillStyle='#252d3b';roundRect(28,145,264,34,12,true);ctx.fillStyle='#34d399';roundRect(28+264*.58,145,264*.24,34,8,true);ctx.fillStyle=rpm>.82?'#fb7185':'#facc15';roundRect(28,145,264*rpm,34,12,true);text('ОБОРОТЫ',28,130,12,'#9ca3af');text(Math.round(rpm*8000)+' об/мин',160,213,18,'#fff','center');carShape(160,310,0,selected.col);text('Удачных переключений: '+good+'/5',160,385,15,'#34d399','center');text('Ошибок: '+miss+'/3',160,410,14,'#fb7185','center');stats.textContent='Зелёная зона: 58–82% оборотов';};
+        const loop=n=>{if(ended)return;const dt=Math.min(.05,(n-last)/1000);last=n;elapsed+=dt;drawDrag(dt);if(!ended)raf=requestAnimationFrame(loop)}; extraSession={stop:()=>finish(false,'ЗАЕЗД ПРЕРВАН',good/5)}; raf=requestAnimationFrame(loop);
+    } else if(kind==='delivery') {
+        title.textContent='📦 Доставка';sub.textContent='До финиша 1000 м · избегай препятствий';action.style.display='none';
+        let x=160, distance=0, cargo=100, spawn=0, obstacles=[], pickups=0, crashed=0;
+        const loop=n=>{if(ended)return;const dt=Math.min(.05,(n-last)/1000);last=n;elapsed+=dt;distance+=dt*(85+selected.hp*.035);spawn-=dt;
+            if(spawn<=0){spawn=.65+R()*.35;const lane=Math.floor(R()*3);obstacles.push({x:65+lane*95,y:-30,kind:R()<.2?'box':'rock'})}
+            obstacles.forEach(o=>o.y+=dt*220);obstacles=obstacles.filter(o=>o.y<470);
+            if(keys.arrowleft||keys.a)x-=dt*190;if(keys.arrowright||keys.d)x+=dt*190;x=clamp(x,28,292);
+            obstacles=obstacles.filter(o=>{if(o.y>340&&o.y<402&&Math.abs(o.x-x)<32){cargo=Math.max(0,cargo-(o.kind==='box'?12:22));crashed++;buzz();return false}return true});
+            ctx.fillStyle='#171c27';ctx.fillRect(0,0,320,440);ctx.fillStyle='#303846';ctx.fillRect(25,0,270,440);ctx.strokeStyle='#ffffff55';ctx.setLineDash([22,18]);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(115,0);ctx.lineTo(115,440);ctx.moveTo(205,0);ctx.lineTo(205,440);ctx.stroke();ctx.setLineDash([]);
+            obstacles.forEach(o=>{ctx.fillStyle=o.kind==='box'?'#d97706':'#8b95a5';roundRect(o.x-17,o.y-17,34,34,6,true);text(o.kind==='box'?'📦':'!',o.x,o.y+5,15,'#fff','center')});
+            carShape(x,360,0,selected.col);ctx.fillStyle='#252d3b';roundRect(18,18,284,48,10,true);text('ГРУЗ '+cargo+'%',30,38,13,'#fff');ctx.fillStyle='#34d399';ctx.fillRect(30,47,Math.max(0,260*cargo/100),7);text(Math.min(1000,Math.floor(distance))+' / 1000 м',160,91,15,'#fff','center');text('Столкновений: '+crashed,160,118,12,'#fca5a5','center');
+            stats.textContent='Управление: ← → или A / D · груз '+cargo+'%';
+            if(cargo<=0){finish(false,'ГРУЗ ПОВРЕЖДЁН',0);return}if(distance>=1000){finish(true,'ДОСТАВКА ВЫПОЛНЕНА',cargo/100);return}raf=requestAnimationFrame(loop)
+        };extraSession={stop:()=>finish(false,'ДОСТАВКА ОТМЕНЕНА',cargo/100)};raf=requestAnimationFrame(loop);
+    } else {
+        title.textContent='🅿️ Точная парковка';sub.textContent='Припаркуйся в зелёной зоне до конца таймера';action.textContent='ТОРМОЗ';let x=160,y=355,angle=0,speed=0,remaining=35,cones=[{x:92,y:105},{x:228,y:105},{x:92,y:190},{x:228,y:190}],hit=0;
+        const target={x:160,y:145,w:64,h:94};
+        const loop=n=>{if(ended)return;const dt=Math.min(.04,(n-last)/1000);last=n;elapsed+=dt;remaining-=dt;
+            if(keys.space)speed*=Math.pow(.05,dt*60);else if(keys.arrowup||keys.w)speed=Math.min(120,speed+dt*65);else if(keys.arrowdown||keys.s)speed=Math.max(-55,speed-dt*70);else speed*=Math.pow(.95,dt*60);
+            if(keys.arrowleft||keys.a)angle-=dt*(1.3+Math.abs(speed)/65);if(keys.arrowright||keys.d)angle+=dt*(1.3+Math.abs(speed)/65);
+            x+=Math.sin(angle)*speed*dt;y-=Math.cos(angle)*speed*dt;
+            if(x<22||x>298||y<25||y>418){x=clamp(x,22,298);y=clamp(y,25,418);speed*=-.25;hit++;buzz()}
+            cones.forEach(c=>{if(Math.hypot(c.x-x,c.y-y)<26){speed*=-.3;hit++;c.x=-1000;buzz()}});
+            ctx.fillStyle='#202733';ctx.fillRect(0,0,320,440);ctx.fillStyle='#303a48';ctx.fillRect(18,18,284,404);
+            ctx.strokeStyle='#ffffff35';ctx.lineWidth=2;ctx.setLineDash([8,7]);ctx.strokeRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);ctx.setLineDash([]);
+            ctx.fillStyle='#34d39925';ctx.fillRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);ctx.strokeStyle='#34d399';ctx.lineWidth=3;ctx.strokeRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);
+            cones.forEach(c=>{if(c.x>0){ctx.fillStyle='#fb923c';ctx.beginPath();ctx.moveTo(c.x,c.y-12);ctx.lineTo(c.x-10,c.y+10);ctx.lineTo(c.x+10,c.y+10);ctx.closePath();ctx.fill()}});
+            carShape(x,y,angle,selected.col);text('Время: '+Math.max(0,remaining).toFixed(1)+' с',160,32,15,'#fff','center');text('Скорость: '+Math.round(Math.abs(speed))+' · столкновения: '+hit,160,58,12,'#fca5a5','center');stats.textContent='Стрелки / WASD: газ, задний ход и руль. Тормоз — отпусти газ.';
+            const inside=Math.abs(x-target.x)<target.w/2-8&&Math.abs(y-target.y)<target.h/2-12&&Math.abs(speed)<18;
+            if(inside){const accuracy=clamp(1-(Math.hypot(x-target.x,y-target.y)/90)-hit*.12,0,1);finish(true,'МАШИНА ПРИПАРКОВАНА',accuracy);return}
+            if(remaining<=0){const proximity=clamp(1-Math.hypot(x-target.x,y-target.y)/260-hit*.1,0,1);finish(false,'ВРЕМЯ ВЫШЛО',proximity);return}
+            raf=requestAnimationFrame(loop)
+        };extraSession={stop:()=>finish(false,'ПАРКОВКА ПРЕРВАНА',0)};raf=requestAnimationFrame(loop);
+    }
+}
+
 // ===== Сохранение в облаке Telegram (между устройствами) =====
 let lastCloud = 0;
 const cloudSave = () => { try { const cs = Telegram.WebApp.CloudStorage; if (!cs || Date.now() - lastCloud < 8000) return; lastCloud = Date.now(); const j = JSON.stringify(S); if (j.length < 4000) cs.setItem(KEY, j) } catch { } };
@@ -359,7 +448,7 @@ document.body.onclick = e => {
     const a = b.dataset.a, i = +b.dataset.i; buzz();
     if (a === 'claim') { if (S.acc < 1) return toast('Пока нечего забирать'); S.m += S.acc; toast('+' + fmt(S.acc)); S.acc = 0 }
     else if (a === 'sell') { const o = S.cars.find(x => x.id === i); if (o && confirm('Продать ' + CARS[o.i].n + '? Установленные детали вернутся на склад.')) { (o.parts || []).forEach((v, j) => { if (v) S.parts[j] = (S.parts[j] || 0) + 1 }); S.m += CARS[o.i].p * SELL; S.cars = S.cars.filter(x => x !== o); task('sell') } }
-    else if (a === 'pick') S.sel = i; else if (a === 'parts') { const o = S.cars.find(x => x.id === i); if (!o) return; const ov = $('#ov'); ov.className = 'on'; ov.innerHTML = partsH(o); return } else if (a === 'install') { const o = S.cars.find(x => x.id === i), j = +b.dataset.p; if (!o || !S.parts[j]) return toast('Детали нет на складе'); o.parts = Array.isArray(o.parts) ? o.parts : Array(8).fill(0); if (o.parts[j]) return; S.parts[j]--; o.parts[j] = 1; S.sel = o.id; save(); $('#ov').innerHTML = partsH(o); toast(PARTS[j][1] + ' установлена'); return } else if (a === 'wst') { if (pit && !pit.done) return; stk = i } else if (a === 'sh') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m / 2)) } else if (a === 'smax') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m)) } else if (a === 'wspin') return spin(); else if (a === 'promo') return applyPromo(); else if (a === 'pstart') return pitStart(); else if (a === 'ptap') return pitTap(); else if (a === 'astart') return aucStart(); else if (a === 'ahi' || a === 'alo') return aucAns(a === 'ahi'); else if (a === 'anext') return aucNext(); else if (a === 'acash') return aucCash(); else if (a === 'areset') { au = null } else if (a === 'rstart') return rally(); else if (a === 'extra-start') { if (S.m < stk) return toast('Не хватает на взнос'); S.m -= stk; let score = 0, kind = b.dataset.kind; if (kind === 'drag') { let hits = 0; for (let q = 0; q < 5; q++)if (R() > .28) hits++; score = hits / 5; toast('Переключения: ' + hits + '/5') } else if (kind === 'delivery') { let hp = 100; for (let q = 0; q < 5; q++)hp -= Math.floor(R() * 25); score = Math.max(0, hp) / 100; toast('Состояние груза: ' + Math.max(0, hp) + '%') } else { const accuracy = R(); score = Math.max(0, 1 - Math.abs(accuracy - .5) * 2); toast('Точность парковки: ' + Math.round(score * 100) + '%') } const reward = Math.round(stk * score * 2.4); if (reward) { S.m += reward; gainXp(12 + Math.round(score * 18)) } save(); toast((reward ? 'Награда ' + fmt(reward) : 'Неудача: взнос потерян')) } else if (a === 'slot') { const c = slotCost(); if (slots() >= MAXSLOTS) return toast('Максимум мест в гараже'); if (S.m < c) return toast('Не хватает ' + fmt(c - S.m)); S.m -= c; S.slots = slots() + 1; toast('Куплено место: теперь их ' + S.slots) } else if (a === 'cs') cs = i; else if (a === 'cn') cn = i; else if (a === 'df') df = i; else if (a === 'open') return openCase(); else if (a === 'go') return race();
+    else if (a === 'pick') S.sel = i; else if (a === 'parts') { const o = S.cars.find(x => x.id === i); if (!o) return; const ov = $('#ov'); ov.className = 'on'; ov.innerHTML = partsH(o); return } else if (a === 'install') { const o = S.cars.find(x => x.id === i), j = +b.dataset.p; if (!o || !S.parts[j]) return toast('Детали нет на складе'); o.parts = Array.isArray(o.parts) ? o.parts : Array(8).fill(0); if (o.parts[j]) return; S.parts[j]--; o.parts[j] = 1; S.sel = o.id; save(); $('#ov').innerHTML = partsH(o); toast(PARTS[j][1] + ' установлена'); return } else if (a === 'wst') { if (pit && !pit.done) return; stk = i } else if (a === 'sh') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m / 2)) } else if (a === 'smax') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m)) } else if (a === 'wspin') return spin(); else if (a === 'promo') return applyPromo(); else if (a === 'pstart') return pitStart(); else if (a === 'ptap') return pitTap(); else if (a === 'astart') return aucStart(); else if (a === 'ahi' || a === 'alo') return aucAns(a === 'ahi'); else if (a === 'anext') return aucNext(); else if (a === 'acash') return aucCash(); else if (a === 'areset') { au = null } else if (a === 'rstart') return rally(); else if (a === 'extra-start') return startExtraGame(b.dataset.kind); else if (a === 'slot') { const c = slotCost(); if (slots() >= MAXSLOTS) return toast('Максимум мест в гараже'); if (S.m < c) return toast('Не хватает ' + fmt(c - S.m)); S.m -= c; S.slots = slots() + 1; toast('Куплено место: теперь их ' + S.slots) } else if (a === 'cs') cs = i; else if (a === 'cn') cn = i; else if (a === 'df') df = i; else if (a === 'open') return openCase(); else if (a === 'go') return race();
     else if (a === 'closeov') $('#ov').className = ''; else if (a === 'closerace') $('#race').className = '';
     save(); draw()
 };

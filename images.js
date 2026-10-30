@@ -1,7 +1,7 @@
 // images.js
 
 // Функция получения URL изображения
-export function getCarImage(id) {
+function getCarImage(id) {
     const paddedId = String(id).padStart(3, '0');
     return `${paddedId}.webp`;
 }

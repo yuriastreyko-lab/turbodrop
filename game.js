@@ -1,4 +1,4 @@
-const $ = s => document.querySelector(s), R = Math.random, KEY = 'tdrop5reset';
+const $ = s => document.querySelector(s), R = Math.random, KEY = 'tdrop5resets';
 const RC = { D: '#8a8f98', C: '#3a9bdc', B: '#a05fe0', A: '#ffa31a', S: '#ff4d6d' }, FL = { JP: '🇯🇵', DE: '🇩🇪', US: '🇺🇸', IT: '🇮🇹', GB: '🇬🇧', RU: '🇷🇺', FR: '🇫🇷', SE: '🇸🇪' };
 // Импортируем функцию получения URL
 
@@ -105,17 +105,97 @@ Koenigsegg Agera RS|S|1160|190|SE|#111827|legend
 Pagani Huayra|S|789|160|IT|#d1d5db|legend
 Mercedes-AMG ONE|S|1063|250|DE|#d1d5db|legend`.split('\n').map(s => { const [n, r, hp, p, cc, col, tg] = s.split('|'); return { n, r, hp: +hp, p: p * 1e6, cc, col, tg: tg.split(',') } });
 const CASES = [
-    { n: 'Бомж', e: '🗑️', c: 1e5, t: 'bomj', w: { D: 85, C: 13, B: 2 }, col: '#8a93a8', d: 'Первый автопарк без лишних понтов' },
-    { n: 'Чекушка', e: '🍾', c: 2.5e5, t: 'chek', w: { D: 45, C: 45, B: 10 }, col: '#a3e635', d: 'Народные седаны и хэтчбеки' },
-    { n: 'СССР', e: '⭐', c: 5e5, t: 'ussr', w: { D: 30, C: 50, B: 20 }, col: '#ef4444', d: 'Раритетная классика Советского Союза' },
-    { n: 'Немцы', e: '🛠️', c: 1e6, t: 'german', w: { C: 25, B: 55, A: 20 }, col: '#94a3b8', d: 'Немецкая школа: от Golf до Porsche' },
-    { n: 'Японцы', e: '🗾', c: 2e6, t: 'japan', w: { C: 25, B: 55, A: 20 }, col: '#f472b6', d: 'JDM, дрифт и легендарные купе' },
-    { n: 'Американцы', e: '🦅', c: 3.5e6, t: 'usa', w: { C: 25, B: 50, A: 25 }, col: '#f97316', d: 'Маслкары, масштаб и американский характер' },
-    { n: 'Внедорожники', e: '🏔️', c: 5e6, t: 'offroad', w: { C: 25, B: 55, A: 20 }, col: '#84cc16', d: 'Полный привод и тяжёлая техника' },
-    { n: 'Спорт', e: '🏁', c: 8e6, t: 'sport', w: { B: 25, A: 60, S: 15 }, col: '#3b82f6', d: 'Скоростные купе и гоночные иконы' },
-    { n: 'Люкс', e: '💎', c: 12e6, t: 'lux', w: { B: 25, A: 55, S: 20 }, col: '#22d3ee', d: 'Представительские седаны и люксовые купе' },
-    { n: 'Легендарный', e: '👑', c: 20e6, t: 'legend', w: { A: 20, S: 80 }, col: '#fbbf24', d: 'Гиперкары, которые меняли историю' }];
-
+    {
+        n: 'Бомж',
+        e: '🗑️',
+        c: 1e5,
+        t: 'bomj',
+        w: { D: 94, C: 5, B: 1 },
+        col: '#8a93a8',
+        d: 'Первый автопарк. Дешёвые машины и низкие шансы на редкость.'
+    },
+    {
+        n: 'Чекушка',
+        e: '🍾',
+        c: 2.5e5,
+        t: 'chek',
+        w: { D: 70, C: 25, B: 5 },
+        col: '#a3e635',
+        d: 'Народные седаны и первые интересные находки.'
+    },
+    {
+        n: 'СССР',
+        e: '⭐',
+        c: 5e5,
+        t: 'ussr',
+        w: { D: 55, C: 35, B: 10 },
+        col: '#ef4444',
+        d: 'Советская классика. Редкие экземпляры встречаются нечасто.'
+    },
+    {
+        n: 'Немцы',
+        e: '🛠️',
+        c: 1e6,
+        t: 'german',
+        w: { C: 55, B: 35, A: 10 },
+        col: '#94a3b8',
+        d: 'Немецкие автомобили от обычных моделей до мощных спорткаров.'
+    },
+    {
+        n: 'Японцы',
+        e: '🗾',
+        c: 2e6,
+        t: 'japan',
+        w: { C: 40, B: 40, A: 18, S: 2 },
+        col: '#f472b6',
+        d: 'JDM, дрифт и редкие японские легенды.'
+    },
+    {
+        n: 'Американцы',
+        e: '🦅',
+        c: 3.5e6,
+        t: 'usa',
+        w: { C: 30, B: 40, A: 25, S: 5 },
+        col: '#f97316',
+        d: 'Маслкары и мощные американские автомобили.'
+    },
+    {
+        n: 'Внедорожники',
+        e: '🏔️',
+        c: 5e6,
+        t: 'offroad',
+        w: { C: 25, B: 45, A: 25, S: 5 },
+        col: '#84cc16',
+        d: 'Внедорожники для коллекционеров и любителей мощных машин.'
+    },
+    {
+        n: 'Спорт',
+        e: '🏁',
+        c: 8e6,
+        t: 'sport',
+        w: { B: 30, A: 55, S: 15 },
+        col: '#3b82f6',
+        d: 'Спортивные автомобили. Высокая цена и серьёзный риск.'
+    },
+    {
+        n: 'Люкс',
+        e: '💎',
+        c: 12e6,
+        t: 'lux',
+        w: { B: 25, A: 55, S: 20 },
+        col: '#22d3ee',
+        d: 'Дорогие автомобили премиум-класса.'
+    },
+    {
+        n: 'Легендарный',
+        e: '👑',
+        c: 20e6,
+        t: 'legend',
+        w: { A: 55, S: 30, B: 15 },
+        col: '#fbbf24',
+        d: 'Самый дорогой кейс. Красная редкость выпадает редко.'
+    }
+];
 const poolFor = k => CARS.map((_, i) => i).filter(i => CARS[i].tg.includes(k.t));
 const caseW = k => { const have = new Set(poolFor(k).map(i => CARS[i].r)), w = {}; for (const r in k.w) if (have.has(r)) w[r] = k.w[r]; return w };
 const roll = k => { const r = pick(caseW(k)), p = poolFor(k).filter(i => CARS[i].r === r); return p[Math.floor(R() * p.length)] };
@@ -209,15 +289,11 @@ const partsH = o => `<div class="ovc parts"><h2 class="ctt">🔧 Детали</h
 let gm = null, wc = 33, ws = 1, wbusy = false, stk = 1e6; const WS = [1e5, 1e6, 1e7, 1e8], WS_LIMIT = [1e5, 2.5e5, 5e5, 1e6, 2.5e6, 5e6], MAX_STAKE = 5e6;
 // ===== Промокоды: хранятся хэши SHA-256 от 'tdrop:' + КОД (сами коды в репозитории не видны) =====
 const PROMO = {
-    // Новые промокоды. Старые коды удалены.
-    '84f1bd220dd5641cde6f90a549a3c16f64c783e9bd32a99d8982c4cdd582d0af': 5000000,
-    '154af94aa4bda784177cb149b017bc8cd36794205c694e58f9b9eb5383ac9cbb': 10000000,
-    'a7016058b4d79b59c4db0199a12aecc7bf1b8baba11c53f58f59730a4ed11060': 25000000,
-    '7333905594dbcad4dc9d3012d2f410a48a5baa2bca083c8a1015a844fe424f12': 50000000,
-    'a2c1d9aa13b508a6b17ad01087685330aed5ac07d36187c04345a215e7233af3': 100000000,
-    '2a244c3f49ff6ec1b074b73dff5ee447096bdbfec70acb916757a9f179565dc6': 250000000,
-    'adc41a6c397ec486b168d1f81afe327d9186b07a7d2e77e1b2b64e5127680ada': 500000000,
-    '7bfb96e0243d39844e71cbc7919ba4ecacae7daec3eb77c241794481c649751e': 1000000000
+    'ab7df95d73595a9a33bd8faa6cba1ac66a44059bc6c36aa714bcbcca04290534': 25000000,
+    '79d68b24057d12921c6bce38ceaad59a6380f2ab0b8d9de302ba635ed39d19c9': 50000000,
+    'd8bc456f74568e844264f15b0a20ba289518962c3c0c6f7545d9835647a6786e': 100000000,
+    'ef0742f22e6e6bbede53a90b8861f446ad88fca697576c35c8610605b24adab1': 10000000,
+    '0cac774e9f31528c59ded96c4d9c19fba06aaf7f3fc8216ca24a807a5f3d4dd7': 5000000
 };
 async function sha(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('') }
 async function applyPromo() {
@@ -242,24 +318,11 @@ function spin() {
 }
 const extraGameView = kind => {
     const data = {
-        drag: ['🚦', 'Драг-рейсинг', '6 передач · узкая зона переключения', 'Потребуется точная реакция: перекрутишь двигатель — проиграешь.'],
-        delivery: ['📦', 'Экспресс-доставка', 'Дистанция 1 800 м · ограниченный запас груза', 'Препятствия появляются чаще и движутся быстрее. Ошибки быстро съедают груз.'],
-        parking: ['🅿️', 'Парковочный экзамен', '25 секунд · тесное парковочное место', 'Нужно остановиться внутри разметки почти без скорости и не разбить машину о конусы.']
+        drag: ['🚦 Драг-рейсинг', 'Разгони двигатель и переключай передачи в зелёной зоне. Пять передач до финиша.'],
+        delivery: ['📦 Доставка', 'Двигайся по дороге, объезжай препятствия и довези груз до финиша. Столкновения повреждают груз.'],
+        parking: ['🅿️ Точная парковка', 'Управляй машиной и припаркуйся в зелёной зоне. Важно не задеть конусы и не выйти за время.']
     }[kind];
-    return `<button class="back" data-g="hub">‹ Все игры</button>
-    <div class="card" style="position:relative;overflow:hidden;text-align:left;padding:18px;background:radial-gradient(circle at 90% 0%,#1e3a5f 0,transparent 42%),linear-gradient(145deg,#121a27,#0b1019);border:1px solid #334155">
-      <div style="font-size:38px;line-height:1.2">${data[0]}</div>
-      <div style="font-size:10px;letter-spacing:2px;color:#60a5fa;font-weight:900;margin-top:10px">TURBODROP · CHALLENGE MODE</div>
-      <h2 style="font-size:25px;margin:7px 0 8px">${data[1]}</h2>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin:12px 0"><span class="chip2">${data[2]}</span><span class="chip2">Сложность: высокая</span></div>
-      <p class="mute" style="line-height:1.55">${data[3]}</p>
-      <div style="margin:16px 0;padding:12px;border-radius:12px;background:#ffffff08;border:1px solid #ffffff12">
-        <div style="font-size:11px;color:#94a3b8;letter-spacing:1px;margin-bottom:7px">ВЗНОС ЗА ЗАЕЗД</div>${stakeH()}
-        <p class="mute" style="font-size:12px;margin:8px 0 0">Чем выше взнос, тем выше риск. Выплаты уменьшены: стабильного заработка нет, ошибки могут привести к потере денег.</p>
-      </div>
-      <button class="blue" style="width:100%;min-height:48px;font-weight:900;letter-spacing:.4px" data-a="extra-start" data-kind="${kind}">▶ НАЧАТЬ ЗАЕЗД · ${fmt(stk)}</button>
-      <p class="mute" style="text-align:center;font-size:11px;margin-bottom:0">Управление: клавиатура или экранные кнопки</p>
-    </div>`;
+    return `<button class="back" data-g="hub">‹ Игры</button><div class="card" style="text-align:center"><h2>${data[0]}</h2><p class="mute">${data[1]}</p>${stakeH()}<button class="blue" data-a="extra-start" data-kind="${kind}">Начать · ${fmt(stk)}</button><p class="mute">Награда начисляется только после завершения игры и зависит от результата.</p></div>`;
 };
 V.games = () => {
     if (gm === 'pit') return pickerH() + pitView(); if (gm === 'auction') return pickerH() + aucView(); if (gm === 'rally') return pickerH() + rallyView(); if (['drag', 'delivery', 'parking'].includes(gm)) return pickerH() + extraGameView(gm); if (gm === 'race') return pickerH() + V.raceV(); if (gm === 'wheel') return pickerH() + wheelH();
@@ -332,84 +395,688 @@ function rally() {
 
 // ===== Полноценные мини-игры: результат зависит от действий игрока =====
 let extraSession = null;
+
+// ===== Полноценные мини-игры: результат зависит от действий игрока =====
+let extraSession = null;
+
 function startExtraGame(kind) {
     if (!['drag', 'delivery', 'parking'].includes(kind)) return;
     if (!selCar()) return toast('Сначала получите машину в кейсе');
     if (!okStake()) return;
-    const fee = Math.floor(stk), selected = car2(selCar()), el = $('#race');
+
+    const fee = Math.floor(stk);
+    const selected = car2(selCar());
+    const el = $('#race');
+
     if (fee < 1000 || fee > S.m) return toast('Проверьте сумму взноса');
-    S.m -= fee; save(); upd();
+
+    S.m -= fee;
+    save();
+    upd();
+
     el.className = 'on';
-    el.innerHTML = `<div style="padding:12px;background:linear-gradient(135deg,#101827,#17263a);border:1px solid #2b3d55;border-radius:16px 16px 0 0;text-align:center"><div style="font-size:10px;letter-spacing:2px;color:#60a5fa;font-weight:900">TURBODROP · CHALLENGE</div><div class="rt" style="margin-top:4px"><button data-a="closerace" aria-label="Закрыть" style="display:none">‹</button><div id="x-title" class="t"></div><div id="x-sub">Управляй машиной и доберись до финиша</div></div><div style="font-size:11px;color:#94a3b8">ВЗНОС ${fmt(fee)} · ОШИБКИ СНИЖАЮТ ВЫПЛАТУ</div></div><canvas id="x-cv" width="320" height="440" style="display:block;width:min(100%,390px);height:auto;margin:0 auto;background:#0b1019;border:1px solid #263449;border-top:0;border-radius:0 0 14px 14px;touch-action:none"></canvas><div id="x-stats" class="card" style="text-align:center;margin:10px 0;border:1px solid #2b3d55;background:linear-gradient(145deg,#141d2b,#0c111a)"></div><div class="bot rb2" style="display:grid;grid-template-columns:repeat(4,minmax(42px,1fr));gap:7px;justify-content:center;max-width:390px;margin:0 auto"><button class="blue" data-xkey="left" style="min-height:44px">◀</button><button class="blue" data-xkey="down" style="min-height:44px">▼</button><button class="blue" data-xkey="up" style="min-height:44px">▲</button><button class="blue" data-xkey="right" style="min-height:44px">▶</button><button class="blue" id="x-action" style="grid-column:1/-1;min-height:46px">ДЕЙСТВИЕ</button></div><p class="mute" style="text-align:center;font-size:12px">ПК: стрелки / WASD / пробел. Телефон: удерживай кнопки. Отмена заезда не возвращает взнос.</p>`;
-    const cv = $('#x-cv'), ctx = cv.getContext('2d'), title = $('#x-title'), sub = $('#x-sub'), stats = $('#x-stats'), action = $('#x-action');
-    let ended = false, raf = 0, last = performance.now(), elapsed = 0, keys = Object.create(null), held = Object.create(null), score = 0, shift = () => {};
+
+    el.innerHTML = `
+        <div class="rt">
+            <button data-a="closerace" aria-label="Закрыть" style="display:none">‹</button>
+            <div id="x-title" class="t"></div>
+            <div id="x-sub">Управляй машиной и доберись до финиша</div>
+        </div>
+
+        <canvas id="x-cv" width="320" height="440"
+            style="display:block;width:min(100%,360px);height:auto;margin:0 auto;border-radius:14px;touch-action:none">
+        </canvas>
+
+        <div id="x-stats" class="card" style="text-align:center;margin:8px 0"></div>
+
+        <div class="bot rb2" id="x-controls">
+            <button class="blue" data-xkey="left">◀</button>
+            <button class="blue" data-xkey="down">▼</button>
+            <button class="blue" data-xkey="up">▲</button>
+            <button class="blue" data-xkey="right">▶</button>
+            <button class="blue" id="x-action">ДЕЙСТВИЕ</button>
+        </div>
+
+        <p class="mute" style="text-align:center">
+            Клавиатура: стрелки / WASD. На телефоне используй кнопки.
+        </p>
+    `;
+
+    const cv = $('#x-cv');
+    const ctx = cv.getContext('2d');
+    const title = $('#x-title');
+    const sub = $('#x-sub');
+    const stats = $('#x-stats');
+    const action = $('#x-action');
+
+    let ended = false;
+    let raf = 0;
+    let last = performance.now();
+    let elapsed = 0;
+    let keys = Object.create(null);
+    let held = Object.create(null);
+    let score = 0;
+    let shift = () => { };
+
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const roundRect = (x,y,w,h,r,fill) => { ctx.beginPath(); ctx.roundRect(x,y,w,h,r); if (fill) ctx.fill(); else ctx.stroke(); };
-    const text = (t,x,y,size=15,color='#fff',align='left') => { ctx.fillStyle=color; ctx.font=`700 ${size}px system-ui,sans-serif`; ctx.textAlign=align; ctx.fillText(t,x,y); ctx.textAlign='left' };
-    const carShape = (x,y,angle=0,color=selected.col) => { ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle='#05070b';roundRect(-13,-21,26,42,6,true);ctx.fillStyle=color;roundRect(-10,-20,20,40,5,true);ctx.fillStyle='#172536';roundRect(-7,-11,14,10,3,true);ctx.fillStyle='#b9e8ff';roundRect(-7,5,14,7,2,true);ctx.fillStyle='#fff5ba';ctx.fillRect(-9,-18,4,3);ctx.fillRect(5,-18,4,3);ctx.restore() };
-    const finish = (win, label, rawScore) => {
-        if (ended) return; ended = true; cancelAnimationFrame(raf); document.removeEventListener('keydown', kd); document.removeEventListener('keyup', ku);
-        document.querySelectorAll('[data-xkey]').forEach(b => { b.onpointerdown = b.onpointerup = b.onpointerleave = null });
-        score = clamp(rawScore,0,1); const mult = win ? (0.25 + score * 0.9) : score * 0.05; const payout = Math.round(fee * mult);
-        S.m += payout; gainXp(win ? 18 + Math.round(score*22) : 4 + Math.round(score*8)); save(); upd();
-        title.className = win ? 't w' : 't l'; title.textContent = label;
-        sub.textContent = `${win ? 'Финиш' : 'Заезд окончен'} · результат ${Math.round(score*100)}%`;
-        stats.innerHTML = `<b>${win ? 'Награда' : 'Компенсация за результат'}: ${fmt(payout)}</b><br><span class="mute">Взнос: ${fmt(fee)} · итог с учётом взноса: ${payout-fee >= 0 ? '+' : '−'}${fmt(Math.abs(payout-fee))}</span>`;
-        action.textContent='ЗАКРЫТЬ'; action.onclick=()=>{$('#race').className='';extraSession=null}; action.style.display=''; document.querySelectorAll('[data-xkey]').forEach(b=>b.disabled=true);
-        extraSession=null; toast((payout>=fee?'Результат в плюс: ':'Выплата: ')+fmt(payout));
+
+    const roundRect = (x, y, w, h, r, fill) => {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, r);
+        if (fill) ctx.fill();
+        else ctx.stroke();
     };
-    const kd = e => { const k=e.key.toLowerCase(); if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k)) e.preventDefault(); keys[k]=true; if(kind==='drag' && (k===' '||k==='enter')) shift(); };
-    const ku = e => { keys[e.key.toLowerCase()]=false };
-    document.addEventListener('keydown',kd); document.addEventListener('keyup',ku);
-    document.querySelectorAll('[data-xkey]').forEach(b=>{
-        const k=b.dataset.xkey, map={left:'arrowleft',right:'arrowright',up:'arrowup',down:'arrowdown'};
-        b.onpointerdown=e=>{e.preventDefault();keys[map[k]]=true;held[k]=true};
-        const release=e=>{e.preventDefault();keys[map[k]]=false;held[k]=false};
-        b.onpointerup=release;b.onpointerleave=release;
+
+    const text = (t, x, y, size = 15, color = '#fff', align = 'left') => {
+        ctx.fillStyle = color;
+        ctx.font = `700 ${size}px system-ui,sans-serif`;
+        ctx.textAlign = align;
+        ctx.fillText(t, x, y);
+        ctx.textAlign = 'left';
+    };
+
+    const carShape = (x, y, angle = 0, color = selected.col) => {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        ctx.fillStyle = '#05070b';
+        roundRect(-13, -21, 26, 42, 6, true);
+
+        ctx.fillStyle = color;
+        roundRect(-10, -20, 20, 40, 5, true);
+
+        ctx.fillStyle = '#172536';
+        roundRect(-7, -11, 14, 10, 3, true);
+
+        ctx.fillStyle = '#b9e8ff';
+        roundRect(-7, 5, 14, 7, 2, true);
+
+        ctx.fillStyle = '#fff5ba';
+        ctx.fillRect(-9, -18, 4, 3);
+        ctx.fillRect(5, -18, 4, 3);
+
+        ctx.restore();
+    };
+
+    const cleanup = () => {
+        cancelAnimationFrame(raf);
+
+        document.removeEventListener('keydown', kd);
+        document.removeEventListener('keyup', ku);
+
+        document.querySelectorAll('[data-xkey]').forEach(b => {
+            b.onpointerdown = null;
+            b.onpointerup = null;
+            b.onpointerleave = null;
+            b.onpointercancel = null;
+        });
+    };
+
+    const finish = (win, label, rawScore) => {
+        if (ended) return;
+
+        ended = true;
+        cleanup();
+
+        score = clamp(rawScore, 0, 1);
+
+        const mult = win ? (0.5 + score * 1.9) : score * 0.35;
+        const payout = Math.round(fee * mult);
+
+        S.m += payout;
+
+        gainXp(
+            win
+                ? 18 + Math.round(score * 22)
+                : 4 + Math.round(score * 8)
+        );
+
+        save();
+        upd();
+
+        title.className = win ? 't w' : 't l';
+        title.textContent = label;
+
+        sub.textContent =
+            `${win ? 'Финиш' : 'Заезд окончен'} · результат ${Math.round(score * 100)}%`;
+
+        stats.innerHTML = `
+            <b>${win ? 'Награда' : 'Компенсация за результат'}: ${fmt(payout)}</b>
+            <br>
+            <span class="mute">
+                Взнос: ${fmt(fee)} · итог с учётом взноса:
+                ${payout - fee >= 0 ? '+' : '−'}${fmt(Math.abs(payout - fee))}
+            </span>
+        `;
+
+        action.textContent = 'ЗАКРЫТЬ';
+
+        action.onclick = () => {
+            $('#race').className = '';
+            extraSession = null;
+        };
+
+        action.style.display = '';
+
+        document.querySelectorAll('[data-xkey]').forEach(b => {
+            b.disabled = true;
+        });
+
+        extraSession = null;
+
+        toast(
+            (payout >= fee ? 'Результат в плюс: ' : 'Выплата: ') + fmt(payout)
+        );
+    };
+
+    const kd = e => {
+        const k = e.key.toLowerCase();
+
+        if (['arrowleft', 'arrowright', 'arrowup', 'arrowdown', ' '].includes(k)) {
+            e.preventDefault();
+        }
+
+        keys[k] = true;
+
+        if (kind === 'drag' && (k === ' ' || k === 'enter')) {
+            shift();
+        }
+    };
+
+    const ku = e => {
+        keys[e.key.toLowerCase()] = false;
+    };
+
+    document.addEventListener('keydown', kd);
+    document.addEventListener('keyup', ku);
+
+    // Кнопки управления на экране
+    document.querySelectorAll('[data-xkey]').forEach(b => {
+        const k = b.dataset.xkey;
+
+        const map = {
+            left: 'arrowleft',
+            right: 'arrowright',
+            up: 'arrowup',
+            down: 'arrowdown'
+        };
+
+        b.onpointerdown = e => {
+            e.preventDefault();
+
+            keys[map[k]] = true;
+            held[k] = true;
+
+            if (b.setPointerCapture) {
+                try {
+                    b.setPointerCapture(e.pointerId);
+                } catch (_) { }
+            }
+        };
+
+        const release = e => {
+            if (e) e.preventDefault();
+
+            keys[map[k]] = false;
+            held[k] = false;
+        };
+
+        b.onpointerup = release;
+        b.onpointerleave = release;
+        b.onpointercancel = release;
     });
-    const actionFn = () => { if(kind==='drag') shift(); else if(kind==='parking') { keys.space=true; setTimeout(()=>keys.space=false,250); } };
-    action.onclick=actionFn;
-    if(kind==='drag') {
-        let gear=1,rpm=.28,good=0,miss=0,stopped=false;
-        title.textContent='🚦 Драг-рейсинг'; sub.textContent='Жми «ПЕРЕКЛЮЧИТЬ» в зелёной зоне'; action.textContent='ПЕРЕКЛЮЧИТЬ';
-        shift=()=>{if(ended||stopped)return;if(rpm>=.65&&rpm<=.76){good++;gear++;rpm=.24;buzz();if(gear>6){finish(true,'ПОБЕДА!',good/6);stopped=true}}else{miss++;rpm=.91;sub.textContent='Промах! Перегрев и потеря мощности';if(miss>=2){finish(false,'ДВИГАТЕЛЬ ПЕРЕГРЕТ',good/6);stopped=true}}};
-        const drawDrag=dt=>{rpm+=dt*(.38+selected.hp/2600);if(rpm>=1){finish(false,'ПЕРЕКРУТ ДВИГАТЕЛЯ',good/6);return}ctx.fillStyle='#101622';ctx.fillRect(0,0,320,440);text('ЗАЕЗД НА 6 ПЕРЕДАЧ',160,36,17,'#fff','center');text('ПЕРЕДАЧА '+Math.min(gear,6),160,78,22,'#facc15','center');ctx.fillStyle='#252d3b';roundRect(28,145,264,34,12,true);ctx.fillStyle='#34d399';roundRect(28+264*.65,145,264*.11,34,8,true);ctx.fillStyle=rpm>.82?'#fb7185':'#facc15';roundRect(28,145,264*rpm,34,12,true);text('ОБОРОТЫ',28,130,12,'#9ca3af');text(Math.round(rpm*8000)+' об/мин',160,213,18,'#fff','center');carShape(160,310,0,selected.col);text('Удачных переключений: '+good+'/6',160,385,15,'#34d399','center');text('Ошибок: '+miss+'/2',160,410,14,'#fb7185','center');stats.textContent='Зелёная зона: 65–76% · 2 ошибки = проигрыш';};
-        const loop=n=>{if(ended)return;const dt=Math.min(.05,(n-last)/1000);last=n;elapsed+=dt;drawDrag(dt);if(!ended)raf=requestAnimationFrame(loop)}; extraSession={stop:()=>finish(false,'ЗАЕЗД ПРЕРВАН',good/6)}; raf=requestAnimationFrame(loop);
-    } else if(kind==='delivery') {
-        title.textContent='📦 Доставка';sub.textContent='До финиша 1 800 м · груз хрупкий';action.style.display='none';
-        let x=160, distance=0, cargo=100, spawn=0, obstacles=[], pickups=0, crashed=0;
-        const loop=n=>{if(ended)return;const dt=Math.min(.05,(n-last)/1000);last=n;elapsed+=dt;distance+=dt*(92+selected.hp*.025);spawn-=dt;
-            if(spawn<=0){spawn=.38+R()*.28;const lane=Math.floor(R()*3);obstacles.push({x:65+lane*95,y:-30,kind:R()<.2?'box':'rock'})}
-            obstacles.forEach(o=>o.y+=dt*285);obstacles=obstacles.filter(o=>o.y<470);
-            if(keys.arrowleft||keys.a)x-=dt*190;if(keys.arrowright||keys.d)x+=dt*190;x=clamp(x,28,292);
-            obstacles=obstacles.filter(o=>{if(o.y>340&&o.y<402&&Math.abs(o.x-x)<32){cargo=Math.max(0,cargo-(o.kind==='box'?22:34));crashed++;buzz();return false}return true});
-            ctx.fillStyle='#171c27';ctx.fillRect(0,0,320,440);ctx.fillStyle='#303846';ctx.fillRect(25,0,270,440);ctx.strokeStyle='#ffffff55';ctx.setLineDash([22,18]);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(115,0);ctx.lineTo(115,440);ctx.moveTo(205,0);ctx.lineTo(205,440);ctx.stroke();ctx.setLineDash([]);
-            obstacles.forEach(o=>{ctx.fillStyle=o.kind==='box'?'#d97706':'#8b95a5';roundRect(o.x-17,o.y-17,34,34,6,true);text(o.kind==='box'?'📦':'!',o.x,o.y+5,15,'#fff','center')});
-            carShape(x,360,0,selected.col);ctx.fillStyle='#252d3b';roundRect(18,18,284,48,10,true);text('ГРУЗ '+cargo+'%',30,38,13,'#fff');ctx.fillStyle='#34d399';ctx.fillRect(30,47,Math.max(0,260*cargo/100),7);text(Math.min(1800,Math.floor(distance))+' / 1800 м',160,91,15,'#fff','center');text('Столкновений: '+crashed,160,118,12,'#fca5a5','center');
-            stats.textContent='Управление: ← → или A / D · груз '+cargo+'%';
-            if(cargo<=0){finish(false,'ГРУЗ ПОВРЕЖДЁН',0);return}if(distance>=1800){finish(true,'ДОСТАВКА ВЫПОЛНЕНА',cargo/100);return}raf=requestAnimationFrame(loop)
-        };extraSession={stop:()=>finish(false,'ДОСТАВКА ОТМЕНЕНА',cargo/100)};raf=requestAnimationFrame(loop);
-    } else {
-        title.textContent='🅿️ Точная парковка';sub.textContent='Припаркуйся в зелёной зоне до конца таймера';action.textContent='ТОРМОЗ';let x=160,y=390,angle=0,speed=0,remaining=25,cones=[{x:92,y:88},{x:228,y:88},{x:92,y:170},{x:228,y:170},{x:92,y:252},{x:228,y:252}],hit=0;
-        const target={x:160,y:115,w:48,h:74};
-        const loop=n=>{if(ended)return;const dt=Math.min(.04,(n-last)/1000);last=n;elapsed+=dt;remaining-=dt;
-            if(keys.space)speed*=Math.pow(.05,dt*60);else if(keys.arrowup||keys.w)speed=Math.min(145,speed+dt*78);else if(keys.arrowdown||keys.s)speed=Math.max(-65,speed-dt*82);else speed*=Math.pow(.95,dt*60);
-            if(keys.arrowleft||keys.a)angle-=dt*(1.3+Math.abs(speed)/65);if(keys.arrowright||keys.d)angle+=dt*(1.3+Math.abs(speed)/65);
-            x+=Math.sin(angle)*speed*dt;y-=Math.cos(angle)*speed*dt;
-            if(x<22||x>298||y<25||y>418){x=clamp(x,22,298);y=clamp(y,25,418);speed*=-.25;hit++;buzz()}
-            cones.forEach(c=>{if(Math.hypot(c.x-x,c.y-y)<24){speed*=-.3;hit++;c.x=-1000;buzz()}});
-            ctx.fillStyle='#202733';ctx.fillRect(0,0,320,440);ctx.fillStyle='#303a48';ctx.fillRect(18,18,284,404);
-            ctx.strokeStyle='#ffffff35';ctx.lineWidth=2;ctx.setLineDash([8,7]);ctx.strokeRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);ctx.setLineDash([]);
-            ctx.fillStyle='#34d39925';ctx.fillRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);ctx.strokeStyle='#34d399';ctx.lineWidth=3;ctx.strokeRect(target.x-target.w/2,target.y-target.h/2,target.w,target.h);
-            cones.forEach(c=>{if(c.x>0){ctx.fillStyle='#fb923c';ctx.beginPath();ctx.moveTo(c.x,c.y-12);ctx.lineTo(c.x-10,c.y+10);ctx.lineTo(c.x+10,c.y+10);ctx.closePath();ctx.fill()}});
-            carShape(x,y,angle,selected.col);text('Время: '+Math.max(0,remaining).toFixed(1)+' с',160,32,15,'#fff','center');text('Скорость: '+Math.round(Math.abs(speed))+' · удары: '+hit,160,58,12,'#fca5a5','center');stats.textContent='Стрелки / WASD: газ, задний ход и руль. Тормоз — отпусти газ.';
-            const inside=Math.abs(x-target.x)<target.w/2-5&&Math.abs(y-target.y)<target.h/2-7&&Math.abs(speed)<8;
-            if(inside){const accuracy=clamp(1-(Math.hypot(x-target.x,y-target.y)/70)-hit*.18-Math.abs(speed)/100,0,1);finish(true,'МАШИНА ПРИПАРКОВАНА',accuracy);return}
-            if(remaining<=0){const proximity=clamp(1-Math.hypot(x-target.x,y-target.y)/260-hit*.1,0,1);finish(false,'ВРЕМЯ ВЫШЛО',proximity);return}
-            raf=requestAnimationFrame(loop)
-        };extraSession={stop:()=>finish(false,'ПАРКОВКА ПРЕРВАНА',0)};raf=requestAnimationFrame(loop);
+
+    const actionFn = () => {
+        if (kind === 'drag') {
+            shift();
+        } else if (kind === 'parking') {
+            keys.space = true;
+
+            setTimeout(() => {
+                keys.space = false;
+            }, 250);
+        }
+    };
+
+    action.onclick = actionFn;
+
+    // =========================
+    // ДРАГ-РЕЙСИНГ
+    // =========================
+
+    if (kind === 'drag') {
+        let gear = 1;
+        let rpm = 0.2;
+        let good = 0;
+        let miss = 0;
+        let stopped = false;
+
+        title.textContent = '🚦 Драг-рейсинг';
+        sub.textContent = 'Жми «ПЕРЕКЛЮЧИТЬ» в зелёной зоне';
+        action.textContent = 'ПЕРЕКЛЮЧИТЬ';
+
+        shift = () => {
+            if (ended || stopped) return;
+
+            if (rpm >= 0.58 && rpm <= 0.82) {
+                good++;
+                gear++;
+                rpm = 0.28;
+
+                buzz();
+
+                if (gear > 5) {
+                    finish(true, 'ПОБЕДА!', good / 5);
+                    stopped = true;
+                }
+            } else {
+                miss++;
+                rpm = 0.96;
+
+                sub.textContent = 'Промах! Потеря мощности';
+
+                if (miss >= 3 || rpm >= 0.95) {
+                    finish(false, 'ДВИГАТЕЛЬ ПЕРЕГРЕТ', good / 5);
+                    stopped = true;
+                }
+            }
+        };
+
+        const drawDrag = dt => {
+            rpm += dt * (0.24 + selected.hp / 2200);
+
+            if (rpm >= 1) {
+                finish(false, 'ПЕРЕКРУТ ДВИГАТЕЛЯ', good / 5);
+                return;
+            }
+
+            ctx.fillStyle = '#101622';
+            ctx.fillRect(0, 0, 320, 440);
+
+            text('ЗАЕЗД НА 5 ПЕРЕДАЧ', 160, 36, 17, '#fff', 'center');
+            text('ПЕРЕДАЧА ' + Math.min(gear, 5), 160, 78, 22, '#facc15', 'center');
+
+            ctx.fillStyle = '#252d3b';
+            roundRect(28, 145, 264, 34, 12, true);
+
+            ctx.fillStyle = '#34d399';
+            roundRect(28 + 264 * 0.58, 145, 264 * 0.24, 34, 8, true);
+
+            ctx.fillStyle = rpm > 0.82 ? '#fb7185' : '#facc15';
+            roundRect(28, 145, 264 * rpm, 34, 12, true);
+
+            text('ОБОРОТЫ', 28, 130, 12, '#9ca3af');
+            text(Math.round(rpm * 8000) + ' об/мин', 160, 213, 18, '#fff', 'center');
+
+            carShape(160, 310, 0, selected.col);
+
+            text('Удачных переключений: ' + good + '/5', 160, 385, 15, '#34d399', 'center');
+            text('Ошибок: ' + miss + '/3', 160, 410, 14, '#fb7185', 'center');
+
+            stats.textContent = 'Зелёная зона: 58–82% оборотов';
+        };
+
+        const loop = n => {
+            if (ended) return;
+
+            const dt = Math.min(0.05, (n - last) / 1000);
+            last = n;
+            elapsed += dt;
+
+            drawDrag(dt);
+
+            if (!ended) {
+                raf = requestAnimationFrame(loop);
+            }
+        };
+
+        extraSession = {
+            stop: () => finish(false, 'ЗАЕЗД ПРЕРВАН', good / 5)
+        };
+
+        raf = requestAnimationFrame(loop);
+    }
+
+    // =========================
+    // ДОСТАВКА
+    // =========================
+
+    else if (kind === 'delivery') {
+        title.textContent = '📦 Доставка';
+        sub.textContent = 'До финиша 1000 м · избегай препятствий';
+        action.style.display = 'none';
+
+        let x = 160;
+        let distance = 0;
+        let cargo = 100;
+        let spawn = 0;
+        let obstacles = [];
+        let crashed = 0;
+
+        const loop = n => {
+            if (ended) return;
+
+            const dt = Math.min(0.05, (n - last) / 1000);
+            last = n;
+            elapsed += dt;
+
+            distance += dt * (85 + selected.hp * 0.035);
+            spawn -= dt;
+
+            if (spawn <= 0) {
+                spawn = 0.65 + R() * 0.35;
+
+                const lane = Math.floor(R() * 3);
+
+                obstacles.push({
+                    x: 65 + lane * 95,
+                    y: -30,
+                    kind: R() < 0.2 ? 'box' : 'rock'
+                });
+            }
+
+            obstacles.forEach(o => {
+                o.y += dt * 220;
+            });
+
+            obstacles = obstacles.filter(o => o.y < 470);
+
+            if (keys.arrowleft || keys.a) x -= dt * 190;
+            if (keys.arrowright || keys.d) x += dt * 190;
+
+            x = clamp(x, 28, 292);
+
+            obstacles = obstacles.filter(o => {
+                if (o.y > 340 && o.y < 402 && Math.abs(o.x - x) < 32) {
+                    cargo = Math.max(
+                        0,
+                        cargo - (o.kind === 'box' ? 12 : 22)
+                    );
+
+                    crashed++;
+                    buzz();
+
+                    return false;
+                }
+
+                return true;
+            });
+
+            ctx.fillStyle = '#171c27';
+            ctx.fillRect(0, 0, 320, 440);
+
+            ctx.fillStyle = '#303846';
+            ctx.fillRect(25, 0, 270, 440);
+
+            ctx.strokeStyle = '#ffffff55';
+            ctx.setLineDash([22, 18]);
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(115, 0);
+            ctx.lineTo(115, 440);
+            ctx.moveTo(205, 0);
+            ctx.lineTo(205, 440);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            obstacles.forEach(o => {
+                ctx.fillStyle = o.kind === 'box' ? '#d97706' : '#8b95a5';
+
+                roundRect(o.x - 17, o.y - 17, 34, 34, 6, true);
+
+                text(
+                    o.kind === 'box' ? '📦' : '!',
+                    o.x,
+                    o.y + 5,
+                    15,
+                    '#fff',
+                    'center'
+                );
+            });
+
+            carShape(x, 360, 0, selected.col);
+
+            ctx.fillStyle = '#252d3b';
+            roundRect(18, 18, 284, 48, 10, true);
+
+            text('ГРУЗ ' + cargo + '%', 30, 38, 13, '#fff');
+
+            ctx.fillStyle = '#34d399';
+            ctx.fillRect(30, 47, Math.max(0, 260 * cargo / 100), 7);
+
+            text(
+                Math.min(1000, Math.floor(distance)) + ' / 1000 м',
+                160, 91, 15, '#fff', 'center'
+            );
+
+            text(
+                'Столкновений: ' + crashed,
+                160, 118, 12, '#fca5a5', 'center'
+            );
+
+            stats.textContent =
+                'Управление: ← → или A / D · груз ' + cargo + '%';
+
+            if (cargo <= 0) {
+                finish(false, 'ГРУЗ ПОВРЕЖДЁН', 0);
+                return;
+            }
+
+            if (distance >= 1000) {
+                finish(true, 'ДОСТАВКА ВЫПОЛНЕНА', cargo / 100);
+                return;
+            }
+
+            raf = requestAnimationFrame(loop);
+        };
+
+        extraSession = {
+            stop: () => finish(false, 'ДОСТАВКА ОТМЕНЕНА', cargo / 100)
+        };
+
+        raf = requestAnimationFrame(loop);
+    }
+
+    // =========================
+    // ТОЧНАЯ ПАРКОВКА
+    // =========================
+
+    else {
+        title.textContent = '🅿️ Точная парковка';
+        sub.textContent = 'Припаркуйся в зелёной зоне до конца таймера';
+        action.textContent = 'ТОРМОЗ';
+
+        let x = 160;
+        let y = 355;
+        let angle = 0;
+        let speed = 0;
+        let remaining = 35;
+
+        let cones = [
+            { x: 92, y: 105 },
+            { x: 228, y: 105 },
+            { x: 92, y: 190 },
+            { x: 228, y: 190 }
+        ];
+
+        let hit = 0;
+
+        const target = {
+            x: 160,
+            y: 145,
+            w: 64,
+            h: 94
+        };
+
+        const loop = n => {
+            if (ended) return;
+
+            const dt = Math.min(0.04, (n - last) / 1000);
+
+            last = n;
+            elapsed += dt;
+            remaining -= dt;
+
+            // Газ, задний ход и торможение
+            if (keys.space) {
+                speed *= Math.pow(0.05, dt * 60);
+            } else if (keys.arrowup || keys.w) {
+                speed = Math.min(120, speed + dt * 65);
+            } else if (keys.arrowdown || keys.s) {
+                speed = Math.max(-55, speed - dt * 70);
+            } else {
+                speed *= Math.pow(0.95, dt * 60);
+            }
+
+            // Управление рулём
+            const steering = dt * (1.3 + Math.abs(speed) / 65);
+
+            if (keys.arrowleft || keys.a) angle -= steering;
+            if (keys.arrowright || keys.d) angle += steering;
+
+            // Движение автомобиля
+            x += Math.sin(angle) * speed * dt;
+            y -= Math.cos(angle) * speed * dt;
+
+            // Столкновение со стенами
+            if (x < 22 || x > 298 || y < 25 || y > 418) {
+                x = clamp(x, 22, 298);
+                y = clamp(y, 25, 418);
+
+                speed *= -0.25;
+                hit++;
+
+                buzz();
+            }
+
+            // Столкновение с конусами
+            cones.forEach(c => {
+                if (c.x > 0 && Math.hypot(c.x - x, c.y - y) < 26) {
+                    speed *= -0.3;
+                    hit++;
+
+                    c.x = -1000;
+
+                    buzz();
+                }
+            });
+
+            // Фон и игровое поле
+            ctx.fillStyle = '#202733';
+            ctx.fillRect(0, 0, 320, 440);
+
+            ctx.fillStyle = '#303a48';
+            ctx.fillRect(18, 18, 284, 404);
+
+            // Парковочное место
+            ctx.strokeStyle = '#ffffff35';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 7]);
+
+            ctx.strokeRect(
+                target.x - target.w / 2,
+                target.y - target.h / 2,
+                target.w,
+                target.h
+            );
+
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#34d39925';
+
+            ctx.fillRect(
+                target.x - target.w / 2,
+                target.y - target.h / 2,
+                target.w,
+                target.h
+            );
+
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 3;
+
+            ctx.strokeRect(
+                target.x - target.w / 2,
+                target.y - target.h / 2,
+                target.w,
+                target.h
+            );
+
+            // Конусы
+            cones.forEach(c => {
+                if (c.x > 0) {
+                    ctx.fillStyle = '#fb923c';
+
+                    ctx.beginPath();
+                    ctx.moveTo(c.x, c.y - 12);
+                    ctx.lineTo(c.x - 10, c.y + 10);
+                    ctx.lineTo(c.x + 10, c.y + 10);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+
+            // Машина
+            carShape(x, y, angle, selected.col);
+
+            // Статистика
+            text(
+                'Время: ' + Math.max(0, remaining).toFixed(1) + ' с',
+                160, 32, 15, '#fff', 'center'
+            );
+
+            text(
+                'Скорость: ' + Math.round(Math.abs(speed)) +
+                ' · столкновения: ' + hit,
+                160, 58, 12, '#fca5a5', 'center'
+            );
+
+            stats.textContent =
+                'Стрелки / WASD: газ, задний ход и руль. Тормоз — отпусти газ.';
+
+            // Проверка парковки
+            const inside =
+                Math.abs(x - target.x) < target.w / 2 - 8 &&
+                Math.abs(y - target.y) < target.h / 2 - 12 &&
+                Math.abs(speed) < 18;
+
+            if (inside) {
+                const accuracy = clamp(
+                    1 - Math.hypot(x - target.x, y - target.y) / 90 - hit * 0.12,
+                    0,
+                    1
+                );
+
+                finish(true, 'МАШИНА ПРИПАРКОВАНА', accuracy);
+                return;
+            }
+
+            // Время закончилось
+            if (remaining <= 0) {
+                const proximity = clamp(
+                    1 - Math.hypot(x - target.x, y - target.y) / 260 - hit * 0.1,
+                    0,
+                    1
+                );
+
+                finish(false, 'ВРЕМЯ ВЫШЛО', proximity);
+                return;
+            }
+
+            raf = requestAnimationFrame(loop);
+        };
+
+        extraSession = {
+            stop: () => finish(false, 'ПАРКОВКА ПРЕРВАНА', 0)
+        };
+
+        raf = requestAnimationFrame(loop);
     }
 }
+
+
 
 // ===== Сохранение в облаке Telegram (между устройствами) =====
 let lastCloud = 0;

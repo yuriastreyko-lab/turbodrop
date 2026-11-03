@@ -66,7 +66,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .promo input{width:100%;padding:15px 16px;border-radius:16px;background:var(--card2);border:1px solid var(--line);color:var(--ink);font:700 16px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;outline:none}.promo input:focus{border-color:var(--a)}.promo input::placeholder{text-transform:none;letter-spacing:0;color:var(--mute);font-weight:600}
 /* новые игры, десктоп */
 .pit{position:relative;height:46px;background:var(--card2);border:1px solid var(--line);border-radius:14px;margin:14px 0 4px}.pit #pz{position:absolute;top:0;bottom:0;background:#34d39944;border:2px solid #34d399;border-radius:10px;left:40%;width:20%}.pit #pm{position:absolute;top:-5px;bottom:-5px;width:6px;margin-left:-3px;background:#fff;border-radius:3px;box-shadow:0 0 12px #fff;left:0}
-#cv{display:block;margin:8px auto;width:min(92vw,330px);height:auto;border-radius:18px;border:1px solid var(--line);touch-action:none}.rb2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rb2 .blue{height:84px;font-size:28px}
+.rb2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rb2 .blue{height:84px;font-size:28px}
 .two .blue{flex:1}
 @media(min-width:900px){main{max-width:980px}.grid{grid-template-columns:repeat(3,1fr)}.gl{grid-template-columns:repeat(3,1fr)}.cen .cc{width:calc(33.3% - 8px)}#dial{width:320px}h1{font-size:36px}.cs{margin:0;padding-left:2px}}
 @media(min-width:900px){header{max-width:980px;margin:0 auto}}
@@ -76,5 +76,137 @@ input,textarea{-webkit-user-select:text;user-select:text}
 /* склад и установка деталей */
 .parts{max-width:620px}.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin:12px 0}.part{min-height:112px;padding:14px 10px;border-radius:18px;border:1px solid var(--line);background:var(--card2);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.part>span{font-size:27px}.part b{font-size:14px}.part small{color:var(--mute);font-size:11px}.part:not(:disabled):active{transform:scale(.97);border-color:var(--a)}.part.inst{border-color:#34d39977;background:#34d39912;opacity:1}.part.inst small{color:#6ee7b7}.part:disabled:not(.inst){opacity:.48}
 /* ралли: дорога и кнопки помещаются на экране телефона */
-#cv{width:auto;height:min(45vh,380px);max-width:92vw}
+#cv {
+    display: block;
+    margin: 8px auto;
+    width: auto;
+    height: min(45vh, 380px);
+    max-width: 92vw;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    touch-action: none;
+}
+/* Компактное управление парковкой */
 
+/* Управление мини-играми */
+#x-controls {
+    display: grid !important;
+    grid-template-columns: repeat(3, 68px);
+    grid-template-rows: 68px 68px auto;
+    grid-template-areas:
+        ". up ."
+        "left down right"
+        "action action action";
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    max-width: 240px;
+    margin: 16px auto !important;
+    padding: 0;
+}
+
+    #x-controls [data-xkey="up"] {
+        grid-area: up;
+    }
+
+    #x-controls [data-xkey="left"] {
+        grid-area: left;
+    }
+
+    #x-controls [data-xkey="down"] {
+        grid-area: down;
+    }
+
+    #x-controls [data-xkey="right"] {
+        grid-area: right;
+    }
+
+    #x-controls [data-xkey] {
+        width: 68px;
+        height: 68px;
+        padding: 0;
+        background: #fff !important;
+        color: #111 !important;
+        border: 4px solid #050505 !important;
+        border-radius: 17px;
+        font-size: 32px;
+        font-weight: 800;
+        touch-action: none;
+    }
+
+    #x-controls #x-action {
+        grid-area: action;
+        width: 100%;
+        height: 52px;
+        min-height: 52px;
+        padding: 10px;
+        margin: 0;
+        border-radius: 14px;
+        font-size: 16px;
+    }
+
+@media (max-width: 380px) {
+    #x-controls {
+        grid-template-columns: repeat(3, 60px);
+        grid-template-rows: 60px 60px auto;
+        gap: 7px;
+    }
+
+        #x-controls [data-xkey] {
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+        }
+}
+/* Исправление управления дополнительными мини-играми */
+#race #x-controls {
+    flex-shrink: 0;
+    display: grid !important;
+    grid-template-columns: repeat(3, 68px);
+    grid-template-rows: 68px 68px auto;
+    grid-template-areas:
+        ". up ."
+        "left down right"
+        "action action action";
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 240px;
+    margin: 12px auto 20px !important;
+}
+
+    #race #x-controls [data-xkey] {
+        width: 68px;
+        height: 68px;
+        padding: 0;
+        background: #fff !important;
+        color: #111 !important;
+        border: 4px solid #050505 !important;
+        border-radius: 17px;
+        font-size: 30px;
+        font-weight: 800;
+        touch-action: none;
+    }
+
+    #race #x-controls #x-action {
+        grid-area: action;
+        width: 100%;
+        height: 52px;
+        min-height: 52px;
+        margin: 0;
+        font-size: 16px;
+    }
+
+@media (max-width: 380px) {
+    #race #x-controls {
+        grid-template-columns: repeat(3, 60px);
+        grid-template-rows: 60px 60px auto;
+    }
+
+        #race #x-controls [data-xkey] {
+            width: 60px;
+            height: 60px;
+            font-size: 27px;
+        }
+}

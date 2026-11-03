@@ -396,8 +396,7 @@ function rally() {
 // ===== Полноценные мини-игры: результат зависит от действий игрока =====
 let extraSession = null;
 
-// ===== Полноценные мини-игры: результат зависит от действий игрока =====
-let extraSession = null;
+
 
 function startExtraGame(kind) {
     if (!['drag', 'delivery', 'parking'].includes(kind)) return;

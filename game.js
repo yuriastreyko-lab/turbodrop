@@ -671,11 +671,11 @@ function startExtraGame(kind) {
                 }
             } else {
                 miss++;
-                rpm = 0.96;
+                rpm = 0.45;
 
                 sub.textContent = 'Промах! Потеря мощности';
 
-                if (miss >= 3 || rpm >= 0.95) {
+                if (miss >= 3) {
                     finish(false, 'ДВИГАТЕЛЬ ПЕРЕГРЕТ', good / 5);
                     stopped = true;
                 }
@@ -1132,7 +1132,13 @@ document.body.onclick = e => {
     if (a === 'claim') { if (S.acc < 1) return toast('Пока нечего забирать'); S.m += S.acc; toast('+' + fmt(S.acc)); S.acc = 0 }
     else if (a === 'sell') { const o = S.cars.find(x => x.id === i); if (o && confirm('Продать ' + CARS[o.i].n + '? Установленные детали вернутся на склад.')) { (o.parts || []).forEach((v, j) => { if (v) S.parts[j] = (S.parts[j] || 0) + 1 }); S.m += CARS[o.i].p * SELL; S.cars = S.cars.filter(x => x !== o); task('sell') } }
     else if (a === 'pick') S.sel = i; else if (a === 'parts') { const o = S.cars.find(x => x.id === i); if (!o) return; const ov = $('#ov'); ov.className = 'on'; ov.innerHTML = partsH(o); return } else if (a === 'install') { const o = S.cars.find(x => x.id === i), j = +b.dataset.p; if (!o || !S.parts[j]) return toast('Детали нет на складе'); o.parts = Array.isArray(o.parts) ? o.parts : Array(8).fill(0); if (o.parts[j]) return; S.parts[j]--; o.parts[j] = 1; S.sel = o.id; save(); $('#ov').innerHTML = partsH(o); toast(PARTS[j][1] + ' установлена'); return } else if (a === 'wst') { if (pit && !pit.done) return; stk = i } else if (a === 'sh') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m / 2)) } else if (a === 'smax') { if (pit && !pit.done) return; stk = Math.max(1000, Math.floor(S.m)) } else if (a === 'wspin') return spin(); else if (a === 'promo') return applyPromo(); else if (a === 'pstart') return pitStart(); else if (a === 'ptap') return pitTap(); else if (a === 'astart') return aucStart(); else if (a === 'ahi' || a === 'alo') return aucAns(a === 'ahi'); else if (a === 'anext') return aucNext(); else if (a === 'acash') return aucCash(); else if (a === 'areset') { au = null } else if (a === 'rstart') return rally(); else if (a === 'extra-start') return startExtraGame(b.dataset.kind); else if (a === 'slot') { const c = slotCost(); if (slots() >= MAXSLOTS) return toast('Максимум мест в гараже'); if (S.m < c) return toast('Не хватает ' + fmt(c - S.m)); S.m -= c; S.slots = slots() + 1; toast('Куплено место: теперь их ' + S.slots) } else if (a === 'cs') cs = i; else if (a === 'cn') cn = i; else if (a === 'df') df = i; else if (a === 'open') return openCase(); else if (a === 'go') return race();
-    else if (a === 'closeov') $('#ov').className = ''; else if (a === 'closerace') $('#race').className = '';
+    else if (a === 'closerace') {
+        if (extraSession) {
+            extraSession.stop();
+        }
+
+        $('#race').className = '';
+    }
     save(); draw()
 };
 document.body.oninput = e => { if (e.target.id === 'wc') { wc = +e.target.value; wUpd() } if (e.target.id === 'stk') { stk = parseInt(e.target.value.replace(/\D/g, '')) || 0; const f = $('#stkf'); if (f) f.textContent = fmt(stk); refreshSl(); if (gm === 'wheel') wUpd() } };
